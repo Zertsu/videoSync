@@ -4,6 +4,7 @@ var ve;
 var syncoffset = 0;
 var ping = 0;
 var vStart = 0;
+var WSrecInterval = -1
 
 function getTime() {
     return (performance.now() - syncoffset)/1000
@@ -44,11 +45,9 @@ function scaleC(val) {
 window.onbeforeunload = function() {
     websoc.close()
 }
-window.onload = function () {
-    setInterval(seekajust,100)
+
+function setupWS() {
     websoc = new WebSocket("wss://"+window.location.host+"/ws")
-    ve = document.getElementById("video")
-    scaleC(1)
     websoc.onmessage = function(mess) {
         var data = JSON.parse(mess.data)
         console.log(data)
@@ -81,6 +80,18 @@ window.onload = function () {
             websoc.close()
         }
     }
+}
+
+window.onload = function () {
+    setupWS()
+    setInterval(seekajust,100)
+    setInterval(function() {
+        if (websoc.readyState == 3) {
+            setupWS()
+        }
+    },5000)
+    ve = document.getElementById("video")
+    scaleC(1)
     timesync = document.getElementById("timesync")
     setInterval(function() {
         timesync.innerText = ((performance.now() - syncoffset) /1000).toFixed(1)
