@@ -46,5 +46,5 @@ function sendURL() {
 }
 
 function seek(val) {
-    websoc.send(JSON.stringify(["seek", val]))
+    websoc.send(JSON.stringify(["seek", parseInt(val) * 1000]))
 }

@@ -4,17 +4,19 @@ var ve;
 var syncoffset = 0;
 var ping = 0;
 var vStart = 0;
-var WSrecInterval = -1
 
 function getTime() {
-    return (performance.now() - syncoffset)/1000
+    return new Date().getTime() + syncoffset
+}
+function getAbsTime() {
+    return new Date().getTime()
 }
 function seekajust() {
     if (!ve.paused) {
-        var dif = (getTime() - vStart) - ve.currentTime
-        if(dif > .1) {
+        var dif = (getTime() - vStart) - ve.currentTime * 1000
+        if(dif > 30) {
             ve.playbackRate = 1.1
-        } else if (dif < -.1) {
+        } else if (dif < -30) {
             ve.playbackRate = .9    
         } else {
             ve.playbackRate = 1
@@ -53,12 +55,14 @@ function setupWS() {
         console.log(data)
         switch (data[0]) {
             case 'time':
-                var ajustedTime = data[1] * 1000 + (performance.now() - ping)/2
-                syncoffset = performance.now() - ajustedTime
+                var timeNow = getAbsTime()
+                var serverTime = data[1] + (timeNow - ping)/2
+                syncoffset = serverTime - timeNow
                 break
             case 'seek':
                 vStart = data[1]
-                ve.currentTime = getTime() - vStart
+                console.log("SS", (getTime() - vStart) / 1000)
+                ve.currentTime = (getTime() - vStart) / 1000
                 break;
             case 'pause':
                 ve.pause()
@@ -75,7 +79,7 @@ function setupWS() {
     }
     websoc.onopen = function() {
         websoc.send(JSON.stringify(["timereq"]))
-        ping = performance.now()
+        ping = getAbsTime()
         window.onbeforeunload = function() {
             websoc.close()
         }
@@ -94,7 +98,8 @@ window.onload = function () {
     scaleC(1)
     timesync = document.getElementById("timesync")
     setInterval(function() {
-        timesync.innerText = ((performance.now() - syncoffset) /1000).toFixed(1)
+        
+        timesync.innerText = String(getTime()).substr(-5,3)
     }, 100)
 }
 

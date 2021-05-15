@@ -10,7 +10,6 @@ import json
 
 
 wsclients = set()
-starttime = time.time()
 curVid = ""
 vidStartTime = 0
 curPos = 0
@@ -31,7 +30,7 @@ async def sendtoAll(data):
     
 
 def getTime():
-    return time.time() - starttime
+    return round(time.time() * 1000)
     
 
 
@@ -49,14 +48,14 @@ async def websocket_handler(request):
             if data[0] == "timereq":
                 await ws.send_json(["time", getTime()])
             elif data[0] == "seek":
-                vidStartTime -= int(data[1])
+                vidStartTime -= data[1]
                 await sendtoAll(["seek", vidStartTime])
             elif data[0] == "play":
                 vidStartTime = getTime()
                 await sendtoAll([data[0], vidStartTime - curPos])
                 isPlaying = True
             elif data[0] == "pause":
-                await sendtoAll([data[0], getTime() + 3])
+                await sendtoAll([data[0], getTime()])
                 isPlaying = False
                 curPos = getTime() - vidStartTime
             elif data[0] == "reqURL":
