@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>SyncVid</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='static/main.css'>
+    <script src='static/vp.js'></script>
+</head>
+<body>
+    <video onclick="togUI()" id="video" class="scale-v" muted></video>
+    <div class="bottomBar">
+        <button onclick="togMute(this)" style="width: 9ch;">Unmute</button>
+        <button onclick="togFull()">Toggle fullscreen</button>
+        <button onclick="ajustOff(this.innerText)">-1000</button>
+        <button onclick="ajustOff(this.innerText)">-100</button>
+        <button onclick="ajustOff(this.innerText)">-10</button>
+        <button onclick="ajustOff(this.innerText)">+10</button>
+        <button onclick="ajustOff(this.innerText)">+100</button>
+        <button onclick="ajustOff(this.innerText)">+1000</button>
+        <span id="timesync"></span>
+    </div>
+    <div class="scale-sel">
+        <input type="range" id="scale-slider" min="1" max="4" value="1" oninput="scaleC(this.value)">
+        <table id="sqrPicker"></table>
+    </div>
+</body>
+</html>

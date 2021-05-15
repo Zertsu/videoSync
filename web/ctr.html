@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>SyncVid</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='static/main.css'>
+    <script src='static/ctr.js'></script>
+</head>
+<body>
+    <button onclick="butHandle(this.id)" id="play" >Play</button>
+    <button onclick="butHandle(this.id)" id="pause">Pause</button>
+    Seek:
+    <button onclick="seek(this.innerText)">-10</button>
+    <button onclick="seek(this.innerText)">+10</button>
+    
+    <br>
+    <input type="url" id="reqURL"><br>
+    <button onclick="sendURL()">Send URL</button><div id="loadingicon" class="lds-dual-ring"></div>
+    <ul id="avalist"></ul>
+</body>
+</html>
