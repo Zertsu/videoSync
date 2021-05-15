@@ -4,6 +4,7 @@ var ve;
 var syncoffset = 0;
 var ping = 0;
 var vStart = 0;
+var debug = false
 
 function getTime() {
     return new Date().getTime() + syncoffset
@@ -98,8 +99,9 @@ window.onload = function () {
     scaleC(1)
     timesync = document.getElementById("timesync")
     setInterval(function() {
-        
-        timesync.innerText = String(getTime()).substr(-5,3)
+        if (debug) {
+            timesync.innerText = String(getTime()).substr(-5,3)
+        }
     }, 100)
 }
 
