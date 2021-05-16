@@ -104,10 +104,13 @@ window.onload = function () {
     },5000)
     ve = document.getElementById("video")
     scaleC(1)
-    timesync = document.getElementById("timesync")
+    debugEl = document.getElementById("debug")
     setInterval(function() {
         if (debug) {
-            timesync.innerText = String(getTime()).substr(-5,3)
+            debugEl.innerText = 
+                ve.playbackRate + " " +
+                String(getTime()).substr(-5,3) + " " +
+                String(websoc.readyState)
         }
     }, 100)
 }
@@ -146,4 +149,8 @@ function sp(cor) {
     var arr = cor.innerText.split(" ")
     document.documentElement.style.setProperty("--pos-x", parseInt(arr[2]-1))
     document.documentElement.style.setProperty("--pos-y", parseInt(arr[0]-1))
+}
+function togDebug() {
+    debug = !debug
+    document.getElementById("debug").style.display = (debug) ? "inline-block" : "none"
 }
