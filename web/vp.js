@@ -15,12 +15,16 @@ function getAbsTime() {
 function seekajust() {
     if (!ve.paused) {
         var dif = (getTime() - vStart) - ve.currentTime * 1000
-        if(dif > 30) {
-            ve.playbackRate = 1.1
-        } else if (dif < -30) {
-            ve.playbackRate = .9    
+        if(Math.abs(dif) > 3000 && !ve.seeking) {
+            ve.currentTime += dif / 1000
         } else {
-            ve.playbackRate = 1
+            if(dif > 30) {
+                ve.playbackRate = 1.1
+            } else if (dif < -30) {
+                ve.playbackRate = .9
+            } else {
+                ve.playbackRate = 1
+            }
         }
         //console.log(dif, ve.playbackRate)
     }
@@ -84,6 +88,9 @@ function setupWS() {
         window.onbeforeunload = function() {
             websoc.close()
         }
+        setTimeout(function() {
+            websoc.send(JSON.stringify(["vidreq"]))
+        }, 3000)
     }
 }
 

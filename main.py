@@ -35,6 +35,7 @@ def getTime():
 
 
 async def websocket_handler(request):
+    global wsclients; global curVid; global vidStartTime; global curPos; global isPlaying
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
@@ -65,7 +66,16 @@ async def websocket_handler(request):
                 await ws.send_json(["avalist",os.listdir(viddir)])
             elif data[0] == "chngvid":
                 curPos = 0
-                await sendtoAll(["chngvid", "/vid/"+ data[1]])
+                curVid = data[1]
+                isPlaying = False
+                await sendtoAll(["chngvid", "/vid/"+ curVid])
+            elif data[0] == "vidreq":
+                if curVid:
+                    await ws.send_json(["chngvid", "/vid/"+ curVid])
+                if isPlaying:
+                    await ws.send_json(["play", vidStartTime - curPos])
+                else:
+                    await ws.send_json([])
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' %
                     ws.exception())
