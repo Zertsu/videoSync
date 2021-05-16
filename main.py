@@ -106,7 +106,6 @@ async def sendloop():
     
     
 
-
 app = web.Application()
 app.add_routes([
     web.get('/ws', websocket_handler),
@@ -116,7 +115,15 @@ app.add_routes([
 ])
 
 
-ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-ssl_context.load_cert_chain('fullchain.pem', 'privkey.pem')
+def main():
+    dlist = os.listdir()
+    if 'fullchain.pem' in dlist and 'privkey.pem' in dlist:
+        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ssl_context.load_cert_chain('fullchain.pem', 'privkey.pem')
+        web.run_app(app, ssl_context=ssl_context, port=4443)
+    else:
+        web.run_app(app, port=8080)
+
+
 if __name__ == '__main__':
-    web.run_app(app, ssl_context=ssl_context, port=4443)
+    main()
