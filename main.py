@@ -19,7 +19,7 @@ viddir = "./vid"
 
 async def ytdl(url):
     process = await asyncio.create_subprocess_exec(
-        'ytdl', 
+        'youtube-dl',
         '-f', 'bestvideo[ext=webm][height<=1080]+bestaudio[ext=webm]',
         '-o', os.path.join(viddir,"%(title)s-%(id)s.%(ext)s"),
         url)
