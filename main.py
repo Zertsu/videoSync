@@ -84,7 +84,7 @@ async def websocket_handler(request):
 
 async def hanetc(req):
     if req.path == "/":
-        with open("web\index.html") as f:
+        with open("web/index.html") as f:
             return web.Response(text=f.read(),content_type="text/html")
     
     if req.path in ["/vp", "/ctr"]:
