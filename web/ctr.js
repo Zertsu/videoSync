@@ -1,5 +1,5 @@
 
-var websoc = new WebSocket("wss://"+window.location.host+"/ws")
+var websoc = new WebSocket((window.location.protocol == "https:" ? "wss" : "ws")+"://"+window.location.host+"/ws")
 window.onbeforeunload = function() {
     websoc.close()
 }

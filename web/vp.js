@@ -54,7 +54,7 @@ window.onbeforeunload = function() {
 }
 
 function setupWS() {
-    websoc = new WebSocket("wss://"+window.location.host+"/ws")
+    websoc = new WebSocket((window.location.protocol == "https:" ? "wss" : "ws")+"://"+window.location.host+"/ws")
     websoc.onmessage = function(mess) {
         var data = JSON.parse(mess.data)
         console.log(data)
