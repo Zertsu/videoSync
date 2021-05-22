@@ -91,10 +91,6 @@ async def hanetc(req):
         with open(f"web{req.path}.html") as f:
             return web.Response(text=f.read(),content_type="text/html")
 
-    if req.path == "/favicon.ico":
-        with open("web/favicon.ico","rb") as f:
-            return web.Response(body=f.read(),content_type="image/x-icon")
-
     return web.Response(text="404 Not found",content_type="text/plain", status=404)
     
 
