@@ -5,23 +5,25 @@ import asyncio
 import ssl
 import time
 import json
+import configparser
 
 
 
+config = configparser.ConfigParser()
 
 wsclients = set()
 curVid = ""
 vidStartTime = 0
 curPos = 0
 isPlaying = False
-viddir = "./vid"
 
 
 async def ytdl(url):
+    global config
     process = await asyncio.create_subprocess_exec(
         'youtube-dl',
-        '-f', 'bestvideo[ext=webm][height<=1080]+bestaudio[ext=webm]',
-        '-o', os.path.join(viddir,"%(title)s-%(id)s.%(ext)s"),
+        '-f', config["files"]["dl_format"],
+        '-o', os.path.join(config["files"]["video_dir"],"%(title)s-%(id)s.%(ext)s"),
         url)
     await process.wait()
 
@@ -61,9 +63,9 @@ async def websocket_handler(request):
                 curPos = getTime() - vidStartTime
             elif data[0] == "reqURL":
                 await ytdl(data[1])
-                await sendtoAll(["avalist", os.listdir(viddir)])
+                await sendtoAll(["avalist", os.listdir(config["files"]["video_dir"])])
             elif data[0] == "getavalist":
-                await ws.send_json(["avalist",os.listdir(viddir)])
+                await ws.send_json(["avalist",os.listdir(config["files"]["video_dir"])])
             elif data[0] == "chngvid":
                 curPos = 0
                 curVid = data[1]
@@ -102,23 +104,41 @@ async def sendloop():
     
     
 
-app = web.Application()
-app.add_routes([
-    web.get('/ws', websocket_handler),
-    web.static("/vid", viddir),
-    web.static("/static", "./web"),
-    web.get('/{path:.*}', hanetc)
-])
+
 
 
 def main():
-    dlist = os.listdir()
-    if 'fullchain.pem' in dlist and 'privkey.pem' in dlist:
-        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_context.load_cert_chain('fullchain.pem', 'privkey.pem')
-        web.run_app(app, ssl_context=ssl_context, port=4443)
+    if os.path.exists("config.ini"):
+        config.read("config.ini")
     else:
-        web.run_app(app, port=8080)
+        config["server"] = {
+            "bind_address" : "0.0.0.0",
+            "port" : "8080",
+            "usessl" : "0",
+            "certfile" : "None",
+            "keyfile" : "None"
+        }
+        config["files"] = {
+            "dl_format" : "bestvideo[ext=webm][height<=1080]+bestaudio[ext=webm]",
+            "video_dir" : "./vid"
+        }
+        with open('config.ini', 'w') as configfile:
+            config.write(configfile)
+    
+    app = web.Application()
+    app.add_routes([
+        web.get('/ws', websocket_handler),
+        web.static("/vid", config["files"]["video_dir"]),
+        web.static("/static", "./web"),
+        web.get('/{path:.*}', hanetc)
+    ])
+    
+    if config["server"]["usessl"] == "1":
+        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ssl_context.load_cert_chain(config["server"]["certfile"], config["server"]["keyfile"])
+        web.run_app(app, ssl_context=ssl_context, port=int(config["server"]["port"]))
+    else:
+        web.run_app(app, port=int(config["server"]["port"]))
 
 
 if __name__ == '__main__':
