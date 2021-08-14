@@ -1,8 +1,8 @@
-#Description
+# Description
 
 Web application to play videos on multiple devices/screens synchronously, with the ability to crop the video on per device basis to create one bigger display from multiple clients
 
-#Installation
+# Installation
 
 *You'll need Python 3 and git installed*
 
