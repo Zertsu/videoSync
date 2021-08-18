@@ -125,6 +125,9 @@ def main():
         with open('config.ini', 'w') as configfile:
             config.write(configfile)
     
+    if not os.path.isdir(config["files"]["video_dir"]):
+        os.mkdir(config["files"]["video_dir"])
+
     app = web.Application()
     app.add_routes([
         web.get('/ws', websocket_handler),
