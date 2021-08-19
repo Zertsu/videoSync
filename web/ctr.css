@@ -1,0 +1,87 @@
+:root {
+    color:white;
+    background-color: black;
+}
+
+ul#avalist li {
+    cursor: pointer;
+    margin: 5px;
+    padding: 4px;
+    border-radius: 5px;
+    background-color: #333;
+}
+ul#avalist li:hover {
+    background-color: #444;
+}
+
+#avalist {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px;
+}
+
+.main-con {
+    display: grid;
+}
+.controls-con {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 60px 60px;
+    grid-template-areas: 
+        "seekb pause play seekf"
+        "reqURL reqURL sndb  loadingicon";
+    
+}
+
+.controls-con > * {
+    background-color: #333;
+    color: white;
+    margin: 4px;
+    border-style: solid;
+    border-radius: 5px;
+}
+.controls-con > *:hover {
+    background-color: #444;
+}
+
+
+#play  { grid-area: play  ;}
+#pause { grid-area: pause ;}
+#seekf { grid-area: seekf ;}
+#seekb { grid-area: seekb ;}
+#reqURL{ grid-area: reqURL;}
+#sndb  { grid-area: sndb  ;}
+#loadingicon {grid-area: loadingicon;}
+
+@media only screen and (min-width: 900px) {
+    .main-con {
+        grid-template-columns: 240px 1fr;
+    }  
+}
+
+/*Loading icon*/
+.lds-dual-ring {
+    display: inline-block;
+    border: none;
+    background-color: transparent;
+}
+.lds-dual-ring:hover {background-color: transparent;}
+.lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    border-color: #fff transparent #fff transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+    margin: auto;
+}
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

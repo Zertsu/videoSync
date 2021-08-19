@@ -6,19 +6,24 @@
     <title>SyncVid</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel="icon" href="/static/favicon.webp" type="image/webp">
-    <link rel='stylesheet' type='text/css' media='screen' href='static/main.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='static/ctr.css'>
     <script src='static/ctr.js'></script>
 </head>
 <body>
-    <button onclick="butHandle(this.id)" id="play" >Play</button>
-    <button onclick="butHandle(this.id)" id="pause">Pause</button>
-    Seek:
-    <button onclick="seek(this.innerText)">-10</button>
-    <button onclick="seek(this.innerText)">+10</button>
-    
-    <br>
-    <input type="url" id="reqURL"><br>
-    <button onclick="sendURL()">Send URL</button><div id="loadingicon" class="lds-dual-ring"></div>
-    <ul id="avalist"></ul>
+    <div class="main-con">
+        <div class="controls">
+            <div class="controls-con">
+                <button onclick="butHandle(this.id)"   id="play" >Play</button>
+                <button onclick="butHandle(this.id)"   id="pause">Pause</button>
+                <button onclick="seek(this.innerText)" id="seekb">-10</button>
+                <button onclick="seek(this.innerText)" id="seekf">+10</button>
+                <input type="url" id="reqURL">
+                <button onclick="sendURL()" id="sndb">Send URL</button><div id="loadingicon" class="lds-dual-ring"></div>
+            </div>
+        </div>
+        <div class="list">
+            <ul id="avalist"></ul>
+        </div>
+    </div>
 </body>
 </html>
