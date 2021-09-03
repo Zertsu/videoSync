@@ -113,8 +113,20 @@ window.onload = function () {
                 String(websoc.readyState)
         }
     }, 100)
+    tickerEl = document.getElementsByClassName("syncer")[0]
 }
 
+function ticketAnimate() {
+    if(window.getComputedStyle(tickerEl).display != "none") {
+        var time = getTime()/1000
+        tickerEl.firstElementChild.children[Math.floor(time % 4)].style["filter"] = "opacity(" + Math.max(1 - time + Math.floor(time), 0.1).toString() + ")"
+        window.requestAnimationFrame(ticketAnimate)
+    } else {
+        for (const el of tickerEl.firstElementChild.children) {
+            el.style.filter = "opacity(0.1)"
+        }; 
+    }
+}
 
 //Called from HTML
 function togUI() {
@@ -126,7 +138,7 @@ function togUI() {
     }
 }
 function ajustOff(v) {
-    syncoffset -= parseInt(v);
+    syncoffset += parseInt(v.innerText);
 }
 function togFull() {
     if(!document.fullscreenElement) {
@@ -153,4 +165,12 @@ function sp(cor) {
 function togDebug() {
     debug = !debug
     document.getElementById("debug").style.display = (debug) ? "inline-block" : "none"
+}
+function togSync() {
+    if (tickerEl.style.display == "block") {
+        tickerEl.style.display = "none"
+    } else {
+        tickerEl.style.display = "block"
+        ticketAnimate()
+    }
 }

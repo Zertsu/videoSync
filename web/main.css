@@ -18,6 +18,11 @@ video {
     object-fit: cover; 
 }
 
+button {
+    color: white;
+    background-color: rgb(66, 66, 66);
+}
+
 .bottomBar {
     position: fixed;
     bottom: 0;
@@ -61,4 +66,37 @@ table#sqrPicker, tr, td{
 }
 #td-sel {
     background-color: #77000077;
+}
+
+
+.syncer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: max-content;
+    margin: 20px;
+    padding: 10px;
+    z-index: 99;
+    display: var(--dis-ui);
+    background-color: #77000077;
+    border-radius: 15px;
+}
+
+.syncer > div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center;   
+    --selection: 1;
+}
+
+.syncer > div > div {
+    width: 2cm;
+    height: 2cm;
+    background-color: red;
+    margin: 8px;
+    border-radius: 5mm;
+    border: 2px solid black;
+    filter: opacity(0.1);
 }
