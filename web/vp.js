@@ -77,7 +77,7 @@ function setupWS() {
                     ve.play()
                 break
             case 'chngvid':
-                ve.setAttribute("src", data[1])
+                setVideo(data[1], data[2])
             default:
                 break;
         }
@@ -125,6 +125,43 @@ function ticketAnimate() {
         for (const el of tickerEl.firstElementChild.children) {
             el.style.filter = "opacity(0.1)"
         }; 
+    }
+}
+
+function setVideo(url, preF) {
+    if (ve.src.startsWith("blob:")) {
+        URL.revokeObjectURL(ve.src)
+    }
+    if (preF) {
+        ve.pause()
+        var req = new XMLHttpRequest()
+        req.open('GET', url, true)
+        req.responseType = 'blob'
+        statEl = document.getElementById("prefStatus")
+        percent = 0
+        function updateDownload() {
+            if (percent == 100) {
+                statEl.innerText = ""
+            } else {
+                statEl.innerText = `Downloading ${percent}%`
+                window.requestAnimationFrame(updateDownload)
+            }
+        }
+        req.onload = function() {
+            if (this.status === 200) {
+                percent = 100
+                var videoBlob = this.response
+                var vid = URL.createObjectURL(videoBlob)
+                ve.src = vid
+            }
+        }
+        req.onprogress = function(evn) {
+            percent = (evn.loaded/evn.total*100).toFixed(0)
+        }
+        window.requestAnimationFrame(updateDownload)
+        req.send()
+    } else {
+        ve.setAttribute("src", url)
     }
 }
 

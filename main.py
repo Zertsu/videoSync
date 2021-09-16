@@ -70,10 +70,10 @@ async def websocket_handler(request):
                 curPos = 0
                 curVid = data[1]
                 isPlaying = False
-                await sendtoAll(["chngvid", "/vid/"+ curVid])
+                await sendtoAll(["chngvid", "/vid/"+ curVid, bool(int(config["player"]["prefetch"]))])
             elif data[0] == "vidreq":
                 if curVid:
-                    await ws.send_json(["chngvid", "/vid/"+ curVid])
+                    await ws.send_json(["chngvid", "/vid/"+ curVid, bool(int(config["player"]["prefetch"]))])
                 if isPlaying:
                     await ws.send_json(["play", vidStartTime - curPos])
                 else:
@@ -121,6 +121,9 @@ def main():
         config["files"] = {
             "dl_format" : "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]",
             "video_dir" : "./vid"
+        }
+        config["player"] = {
+            "prefetch" : "0",
         }
         with open('config.ini', 'w') as configfile:
             config.write(configfile)
