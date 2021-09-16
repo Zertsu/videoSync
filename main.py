@@ -119,7 +119,7 @@ def main():
             "keyfile" : "None"
         }
         config["files"] = {
-            "dl_format" : "bestvideo[ext=webm][height<=1080]+bestaudio[ext=webm]",
+            "dl_format" : "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]",
             "video_dir" : "./vid"
         }
         with open('config.ini', 'w') as configfile:
