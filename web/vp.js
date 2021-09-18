@@ -89,6 +89,7 @@ function setupWS() {
             websoc.close()
         }
         setTimeout(function() {
+            websoc.send(JSON.stringify(["sub","P"]))
             websoc.send(JSON.stringify(["vidreq"]))
         }, 3000)
     }

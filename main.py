@@ -11,7 +11,8 @@ import configparser
 
 config = configparser.ConfigParser()
 
-wsclients = set()
+wsPclients = set()
+wsCclients = set()
 curVid = ""
 vidStartTime = 0
 curPos = 0
@@ -27,8 +28,8 @@ async def ytdl(url):
         url)
     await process.wait()
 
-async def sendtoAll(data):    
-    return await asyncio.gather(*[cli.send_json(data) for cli in wsclients])
+async def sendtoAll(data, clientList):    
+    return await asyncio.gather(*[cli.send_json(data) for cli in clientList])
     
 
 def getTime():
@@ -37,13 +38,10 @@ def getTime():
 
 
 async def websocket_handler(request):
-    global wsclients; global curVid; global vidStartTime; global curPos; global isPlaying
+    global wsPclients; global wsCclients; global curVid; global vidStartTime; global curPos; global isPlaying
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
-    wsclients.add(ws)
-    
-    
     async for msg in ws:
         if msg.type == aiohttp.WSMsgType.TEXT:
             data = json.loads(msg.data)
@@ -52,25 +50,25 @@ async def websocket_handler(request):
                 await ws.send_json(["time", getTime()])
             elif data[0] == "seek":
                 vidStartTime -= data[1]
-                await sendtoAll(["seek", vidStartTime])
+                await sendtoAll(["seek", vidStartTime], wsPclients)
             elif data[0] == "play":
                 vidStartTime = getTime()
-                await sendtoAll([data[0], vidStartTime - curPos])
+                await sendtoAll([data[0], vidStartTime - curPos], wsPclients)
                 isPlaying = True
             elif data[0] == "pause":
-                await sendtoAll([data[0], getTime()])
+                await sendtoAll([data[0], getTime()], wsPclients)
                 isPlaying = False
                 curPos = getTime() - vidStartTime
             elif data[0] == "reqURL":
                 await ytdl(data[1])
-                await sendtoAll(["avalist", os.listdir(config["files"]["video_dir"])])
+                await sendtoAll(["avalist", os.listdir(config["files"]["video_dir"])], wsCclients)
             elif data[0] == "getavalist":
                 await ws.send_json(["avalist",os.listdir(config["files"]["video_dir"])])
             elif data[0] == "chngvid":
                 curPos = 0
                 curVid = data[1]
                 isPlaying = False
-                await sendtoAll(["chngvid", "/vid/"+ curVid, bool(int(config["player"]["prefetch"]))])
+                await sendtoAll(["chngvid", "/vid/"+ curVid, bool(int(config["player"]["prefetch"]))], wsPclients)
             elif data[0] == "vidreq":
                 if curVid:
                     await ws.send_json(["chngvid", "/vid/"+ curVid, bool(int(config["player"]["prefetch"]))])
@@ -78,10 +76,21 @@ async def websocket_handler(request):
                     await ws.send_json(["play", vidStartTime - curPos])
                 else:
                     await ws.send_json([])
+            elif data[0] == "sub":
+                if data[1] == "P":
+                    if not (ws in wsPclients):
+                        wsPclients.add(ws)
+                elif data[1] == "C":
+                    if not (ws in wsCclients):
+                        wsCclients.add(ws)
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' %
                     ws.exception())
-    wsclients.remove(ws)
+    
+    if ws in wsPclients:
+        wsPclients.remove(ws)
+    if ws in wsCclients:
+        wsCclients.remove(ws)
     return ws
 
 async def hanetc(req):
@@ -94,16 +103,6 @@ async def hanetc(req):
             return web.Response(text=f.read(),content_type="text/html")
 
     return web.Response(text="404 Not found",content_type="text/plain", status=404)
-    
-
-async def sendloop():
-    while True:
-        await asyncio.sleep(1)
-        for ws in wsclients:
-            await ws.send_str("Hi")
-    
-    
-
 
 
 

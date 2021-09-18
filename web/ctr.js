@@ -4,6 +4,7 @@ window.onbeforeunload = function() {
     websoc.close()
 }
 websoc.onopen = function() {
+    websoc.send(JSON.stringify(["sub", "C"]))
     websoc.send(JSON.stringify(["getavalist"]))
 }
 websoc.onmessage = function(mess) {
