@@ -83,6 +83,8 @@ async def websocket_handler(request):
                 elif data[1] == "C":
                     if not (ws in wsCclients):
                         wsCclients.add(ws)
+            elif data[0] == "showUI" or data[0] == "hideUI":
+                await sendtoAll([data[0]], wsPclients)
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' %
                     ws.exception())

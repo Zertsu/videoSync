@@ -26,24 +26,43 @@ ul#avalist li:hover {
 .controls-con {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 60px 60px;
+    grid-template-rows: repeat(3, 60px);
     grid-template-areas: 
         "seekb pause play seekf"
-        "reqURL reqURL sndb  loadingicon";
+        "reqURL reqURL sndb  loadingicon"
+        "uiSW uiSW . .";
     
 }
 
-.controls-con > * {
+.controls-con * {
     background-color: #333;
     color: white;
     margin: 4px;
+    border: 2px solid #767676;
     border-style: solid;
     border-radius: 5px;
 }
-.controls-con > *:hover {
+.controls-con *:hover {
     background-color: #444;
 }
 
+#uiSW {
+    display: grid;
+    grid-template-rows: 1fr 3fr;
+    grid-template-columns: 1fr 1fr;
+}
+#uiSW > * {
+    padding: 0;
+    border: none;
+    margin: 0;
+}
+#uiSW > *:nth-child(1) {
+    grid-column: 1 / 3;
+    background-color: #555;
+    border-radius: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
 
 #play  { grid-area: play  ;}
 #pause { grid-area: pause ;}
@@ -52,6 +71,7 @@ ul#avalist li:hover {
 #reqURL{ grid-area: reqURL;}
 #sndb  { grid-area: sndb  ;}
 #loadingicon {grid-area: loadingicon;}
+#uiSW  { grid-area: uiSW;}
 
 @media only screen and (min-width: 900px) {
     .main-con {

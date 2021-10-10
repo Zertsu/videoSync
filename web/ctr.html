@@ -18,7 +18,15 @@
                 <button onclick="seek(this.innerText)" id="seekb">-10</button>
                 <button onclick="seek(this.innerText)" id="seekf">+10</button>
                 <input type="url" id="reqURL">
-                <button onclick="sendURL()" id="sndb">Send URL</button><div id="loadingicon" class="lds-dual-ring"></div>
+                <button onclick="sendURL()" id="sndb">Send URL</button>
+                <div id="loadingicon" class="lds-dual-ring"></div>
+                <div id="uiSW">
+                    <div>
+                        UI
+                    </div>
+                    <button onclick="butHandle('showUI')">ON</button>
+                    <button onclick="butHandle('hideUI')">OFF</button>
+                </div>
             </div>
         </div>
         <div class="list">

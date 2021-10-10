@@ -78,6 +78,12 @@ function setupWS() {
                 break
             case 'chngvid':
                 setVideo(data[1], data[2])
+                break;
+            case 'hideUI':
+                togUI(false)
+                break
+            case 'showUI':
+                togUI(true)
             default:
                 break;
         }
@@ -167,12 +173,16 @@ function setVideo(url, preF) {
 }
 
 //Called from HTML
-function togUI() {
+function togUI(show = null) {  
     var st =  document.documentElement.style
-    if (st.getPropertyValue("--dis-ui") == "none") {
-        st.setProperty("--dis-ui", "block")
+    if (show == null) {
+        if (st.getPropertyValue("--dis-ui") == "none") {
+            st.setProperty("--dis-ui", "block")
+        } else {
+            st.setProperty("--dis-ui", "none")
+        }
     } else {
-        st.setProperty("--dis-ui", "none")
+        st.setProperty("--dis-ui", show ? "block" : "none")
     }
 }
 function ajustOff(v) {
