@@ -22,7 +22,7 @@ isPlaying = False
 async def ytdl(url):
     global config
     process = await asyncio.create_subprocess_exec(
-        'youtube-dl',
+        'yt-dlp',
         '-f', config["files"]["dl_format"],
         '-o', os.path.join(config["files"]["video_dir"],"%(title)s-%(id)s.%(ext)s"),
         url)
