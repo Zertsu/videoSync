@@ -143,9 +143,9 @@ def main():
     if config["server"]["usessl"] == "1":
         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_context.load_cert_chain(config["server"]["certfile"], config["server"]["keyfile"])
-        web.run_app(app, ssl_context=ssl_context, port=int(config["server"]["port"]))
+        web.run_app(app, ssl_context=ssl_context, host=config["server"]["bind_address"], port=int(config["server"]["port"]))
     else:
-        web.run_app(app, port=int(config["server"]["port"]))
+        web.run_app(app, host=config["server"]["bind_address"], port=int(config["server"]["port"]))
 
 
 if __name__ == '__main__':
