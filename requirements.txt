@@ -1,2 +1,2 @@
-aiohttp==3.9.2
+aiohttp==3.9.4
 yt-dlp>=2021.10.10
