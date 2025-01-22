@@ -163,12 +163,17 @@ function setVideo(url, preF) {
         req.open('GET', url, true)
         req.responseType = 'blob'
         statEl = document.getElementById("prefStatus")
+        prefBar = document.getElementById("prefBar")
+        prefBar.style.display = "block"
         percent = 0
         function updateDownload() {
             if (percent == 100) {
                 statEl.innerText = ""
+                prefBar.style.display = "none"
+                prefBar.style.setProperty("--perc", "0%");
             } else {
-                statEl.innerText = `Downloading ${percent}%`
+                prefBar.style.setProperty("--perc", `${percent}%`);
+                statEl.innerText = `Downloading ${percent.toFixed(0)}%`
                 window.requestAnimationFrame(updateDownload)
             }
         }
@@ -181,7 +186,7 @@ function setVideo(url, preF) {
             }
         }
         req.onprogress = function(evn) {
-            percent = (evn.loaded/evn.total*100).toFixed(0)
+            percent = (evn.loaded/evn.total*100)
         }
         window.requestAnimationFrame(updateDownload)
         req.send()

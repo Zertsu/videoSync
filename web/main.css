@@ -112,3 +112,26 @@ table#sqrPicker, tr, td{
     border-radius: 15px;
     border: 1px solid black;
 }
+
+#prefBar {
+    --perc: 0%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 75vw;
+    margin-left: -37.5vw;
+    height: 60px;
+    margin-top: -30px;
+    background-color: #660000BB;
+    border-radius: 30px;
+    overflow: hidden;
+    border: 1px solid black;
+}
+
+#prefBar:before {
+    display: block;
+    content: '';
+    height: 100%;
+    width: var(--perc);
+    background-color: #FF0000CC;
+}
