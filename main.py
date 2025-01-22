@@ -11,12 +11,13 @@ import configparser
 
 config = configparser.ConfigParser()
 
-wsPclients = set()
+wsPclients = list()
 wsCclients = set()
 curVid = ""
 vidStartTime = 0
 curPos = 0
 isPlaying = False
+dispConf = []
 
 
 async def ytdl(url):
@@ -29,7 +30,7 @@ async def ytdl(url):
     await process.wait()
 
 async def sendtoAll(data, clientList):    
-    return await asyncio.gather(*[cli.send_json(data) for cli in clientList])
+    return asyncio.gather(*[cli.send_json(data) for cli in clientList])
     
 
 def getTime():
@@ -38,7 +39,7 @@ def getTime():
 
 
 async def websocket_handler(request):
-    global wsPclients; global wsCclients; global curVid; global vidStartTime; global curPos; global isPlaying
+    global wsPclients; global wsCclients; global curVid; global vidStartTime; global curPos; global isPlaying; global dispConf
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
@@ -79,18 +80,37 @@ async def websocket_handler(request):
             elif data[0] == "sub":
                 if data[1] == "P":
                     if not (ws in wsPclients):
-                        wsPclients.add(ws)
+                        wsPclients.append(ws)
+                        dispConf.append([1, 1, 1])
+                        await asyncio.gather(
+                            sendtoAll(["dispConf", dispConf], wsCclients),
+                            ws.send_json(["cindex", len(wsPclients) - 1]))
                 elif data[1] == "C":
                     if not (ws in wsCclients):
                         wsCclients.add(ws)
-            elif data[0] == "showUI" or data[0] == "hideUI":
+                        await ws.send_json(["dispConf", dispConf])
+            elif data[0] in ["showUI", "hideUI", "showID", "hideID"]:
                 await sendtoAll([data[0]], wsPclients)
+            elif data[0] == "dispConf":
+                await asyncio.gather(
+                    *[wsPclients[i].send_json(["cdispConf", e[1]]) for i, e in enumerate(zip(dispConf, data[1])) if e[0] != e[1]],
+                    sendtoAll(["dispConf", data[1]], wsCclients))
+                dispConf = data[1]
+            elif data[0] == "cdispConf":
+                ind = wsPclients.index(ws)
+                dispConf[ind] = data[1]
+                await sendtoAll(["dispConf", dispConf], wsCclients)
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' %
                     ws.exception())
     
     if ws in wsPclients:
-        wsPclients.remove(ws)
+        ind = wsPclients.index(ws)
+        wsPclients.pop(ind)
+        dispConf.pop(ind)
+        await asyncio.gather(
+            *[wsPclients[i].send_json(["cindex", i]) for i in range(ind, len(wsPclients))],
+            sendtoAll(["dispConf", dispConf], wsCclients))
     if ws in wsCclients:
         wsCclients.remove(ws)
     return ws

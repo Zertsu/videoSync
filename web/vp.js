@@ -29,7 +29,7 @@ function seekajust() {
         //console.log(dif, ve.playbackRate)
     }
 }
-function scaleC(val) {
+function scaleC(val, dontSend = false, x = 1, y = 1) {
     document.documentElement.style.setProperty("--scale", val)
     var table = document.createElement("table")
     table.setAttribute("id","sqrPicker")
@@ -43,10 +43,13 @@ function scaleC(val) {
         }
         table.appendChild(tr)
     }
-    table.firstChild.firstChild.setAttribute("id","td-sel")
+    table.children[x - 1].children[y - 1].setAttribute("id","td-sel")
     document.getElementById("sqrPicker").replaceWith(table)
-    document.documentElement.style.setProperty("--pos-x", 0)
-    document.documentElement.style.setProperty("--pos-y", 0)
+    document.documentElement.style.setProperty("--pos-x", y - 1) // oops wrong order lol
+    document.documentElement.style.setProperty("--pos-y", x - 1)
+    if (!dontSend) {
+        websoc.send(JSON.stringify(["cdispConf", [parseInt(val), 1, 1]]))
+    }
 }
 
 window.onbeforeunload = function() {
@@ -84,6 +87,20 @@ function setupWS() {
                 break
             case 'showUI':
                 togUI(true)
+                break
+            case 'showID':
+                togIndex(true)
+                break
+            case 'hideID':
+                togIndex(false)
+                break
+            case 'cindex':
+                indexEl.innerText = data[1]
+                break
+            case 'cdispConf':
+                scaleC(data[1][0], true, data[1][1], data[1][2])
+                document.getElementById("scale-slider").value = data[1][0]
+                break
             default:
                 break;
         }
@@ -110,7 +127,7 @@ window.onload = function () {
         }
     },5000)
     ve = document.getElementById("video")
-    scaleC(1)
+    scaleC(1, true)
     debugEl = document.getElementById("debug")
     setInterval(function() {
         if (debug) {
@@ -121,6 +138,7 @@ window.onload = function () {
         }
     }, 100)
     tickerEl = document.getElementsByClassName("syncer")[0]
+    indexEl = document.getElementsByClassName("playerId")[0]
 }
 
 function ticketAnimate() {
@@ -209,6 +227,7 @@ function sp(cor) {
     var arr = cor.innerText.split(" ")
     document.documentElement.style.setProperty("--pos-x", parseInt(arr[2]-1))
     document.documentElement.style.setProperty("--pos-y", parseInt(arr[0]-1))
+    websoc.send(JSON.stringify(["cdispConf", [parseInt(document.documentElement.style.getPropertyValue('--scale')), parseInt(arr[0]), parseInt(arr[2])]]))
 }
 function togDebug() {
     debug = !debug
@@ -220,5 +239,12 @@ function togSync() {
     } else {
         tickerEl.style.display = "block"
         ticketAnimate()
+    }
+}
+function togIndex(show = null) {
+    if (show == null) {
+        indexEl.style.display = indexEl.style.display == "none" ? "block" : "none"
+    } else {
+        indexEl.style.display = show ? "block" : "none"
     }
 }

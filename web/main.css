@@ -100,3 +100,15 @@ table#sqrPicker, tr, td{
     border: 2px solid black;
     filter: opacity(0.1);
 }
+
+.playerId {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding: 20px;
+    margin: 20px;
+    font-size: 25vh;
+    background-color: #770000AA;
+    border-radius: 15px;
+    border: 1px solid black;
+}

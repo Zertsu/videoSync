@@ -26,11 +26,12 @@ ul#avalist li:hover {
 .controls-con {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: repeat(3, 60px);
+    grid-template-rows: repeat(3, 60px) min-content;
     grid-template-areas: 
         "seekb pause play seekf"
         "reqURL reqURL sndb  loadingicon"
-        "uiSW uiSW . .";
+        "uiSW uiSW idSW idSW"
+        "layoutCon layoutCon layoutCon layoutCon";
     
 }
 
@@ -46,17 +47,18 @@ ul#avalist li:hover {
     background-color: #444;
 }
 
-#uiSW {
+#uiSW, #idSW {
     display: grid;
     grid-template-rows: 1fr 3fr;
     grid-template-columns: 1fr 1fr;
 }
-#uiSW > * {
+#uiSW > *, #idSW > * {
     padding: 0;
     border: none;
     margin: 0;
 }
-#uiSW > *:nth-child(1) {
+#uiSW > *:nth-child(1),
+#idSW > *:nth-child(1) {
     grid-column: 1 / 3;
     background-color: #555;
     border-radius: 0;
@@ -72,6 +74,23 @@ ul#avalist li:hover {
 #sndb  { grid-area: sndb  ;}
 #loadingicon {grid-area: loadingicon;}
 #uiSW  { grid-area: uiSW;}
+#idSW  { grid-area: idSW;}
+#layoutCon {grid-area: layoutCon;}
+
+#layoutCon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items:center;
+    justify-content: space-around;
+}
+
+.layTable td {
+    height: 19px;
+    width: 19px;
+}
+.layTable span {
+    cursor: default;
+}
 
 @media only screen and (min-width: 900px) {
     .main-con {
