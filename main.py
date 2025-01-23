@@ -14,6 +14,7 @@ config = configparser.ConfigParser()
 wsPclients = list()
 wsCclients = set()
 curVid = ""
+curPref = False
 vidStartTime = 0
 curPos = 0
 isPlaying = False
@@ -39,7 +40,7 @@ def getTime():
 
 
 async def websocket_handler(request):
-    global wsPclients; global wsCclients; global curVid; global vidStartTime; global curPos; global isPlaying; global dispConf
+    global wsPclients; global wsCclients; global curVid; global vidStartTime; global curPos; global isPlaying; global dispConf; global curPref
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
@@ -68,11 +69,12 @@ async def websocket_handler(request):
             elif data[0] == "chngvid":
                 curPos = 0
                 curVid = data[1]
+                curPref = data[2]
                 isPlaying = False
-                await sendtoAll(["chngvid", "/vid/"+ curVid, bool(int(config["player"]["prefetch"]))], wsPclients)
+                await sendtoAll(["chngvid", "/vid/"+ curVid, curPref], wsPclients)
             elif data[0] == "vidreq":
                 if curVid:
-                    await ws.send_json(["chngvid", "/vid/"+ curVid, bool(int(config["player"]["prefetch"]))])
+                    await ws.send_json(["chngvid", "/vid/"+ curVid, curPref])
                 if isPlaying:
                     await ws.send_json(["play", vidStartTime - curPos])
                 else:
@@ -142,9 +144,6 @@ def main():
         config["files"] = {
             "dl_format" : "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]",
             "video_dir" : "./vid"
-        }
-        config["player"] = {
-            "prefetch" : "0",
         }
         with open('config.ini', 'w') as configfile:
             config.write(configfile)

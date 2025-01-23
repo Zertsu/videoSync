@@ -123,18 +123,27 @@ function sendLayout() {
     websoc.send(JSON.stringify(["dispConf", o]))
 }
 
-function chngVid(txt) {
-    websoc.send(JSON.stringify(["chngvid", txt]))
+function chngVid(txt, pref = false) {
+    websoc.send(JSON.stringify(["chngvid", txt, pref]))
 }
 
 function avalistHan(vals) {
     document.getElementById("loadingicon").style.display = "none"
-    var ul = document.createElement("ul")
+    const ul = document.createElement("ul")
     ul.setAttribute("id","avalist")
     for (let i = 0; i < vals.length; i++) {
-        var li = document.createElement("li")
-        li.innerText = vals[i]
-        li.setAttribute("onclick", "chngVid(this.innerText)")
+        const li = document.createElement("li")
+        const d1 = document.createElement("div")
+        d1.innerText = vals[i]
+        const d2 = document.createElement("div")
+        d2.innerText = "Load"
+        d2.addEventListener("click", () => chngVid(vals[i], false))
+        const d3 = document.createElement("div")
+        d3.innerText = "Prefetch"
+        d3.addEventListener("click", () => chngVid(vals[i], true))
+        li.appendChild(d1)
+        li.appendChild(d2)
+        li.appendChild(d3)
         ul.appendChild(li)
     }
     document.getElementById("avalist").replaceWith(ul)
