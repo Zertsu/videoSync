@@ -1,0 +1,37 @@
+networks:
+  videoSyncNet:
+    name: 'videoSyncNet'
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.2.2.0/24
+
+volumes:
+  videoSync-vids:
+    name: "videoSync-vids"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: backend
+    container_name: videoSync_backend
+    networks:
+      videoSyncNet:
+        ipv4_address: 10.2.2.10
+    volumes:
+      - videoSync-vids:/vid
+  rproxy:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: nginxproxy
+    container_name: videoSync_nginx
+    networks:
+      videoSyncNet:
+        ipv4_address: 10.2.2.11
+    volumes:
+      - videoSync-vids:/vid
+    ports:
+      - 0.0.0.0:8000:80
