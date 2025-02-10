@@ -6,7 +6,7 @@ import ssl
 import time
 import json
 import configparser
-
+from urllib.parse import quote as urlquote
 
 
 config = configparser.ConfigParser()
@@ -71,10 +71,10 @@ async def websocket_handler(request):
                 curVid = data[1]
                 curPref = data[2]
                 isPlaying = False
-                await sendtoAll(["chngvid", "/vid/"+ curVid, curPref], wsPclients)
+                await sendtoAll(["chngvid", "/vid/"+ urlquote(curVid), curPref], wsPclients)
             elif data[0] == "vidreq":
                 if curVid:
-                    await ws.send_json(["chngvid", "/vid/"+ curVid, curPref])
+                    await ws.send_json(["chngvid", "/vid/"+ urlquote(curVid), curPref])
                 if isPlaying:
                     await ws.send_json(["play", vidStartTime - curPos])
                 else:
