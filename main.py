@@ -29,6 +29,7 @@ async def ytdl(url):
         '-o', os.path.join(config["files"]["video_dir"],"%(title)s-%(id)s.%(ext)s"),
         url)
     await process.wait()
+    await sendtoAll(["avalist", getVidDir()], wsCclients)
 
 async def sendtoAll(data, clientList):    
     return asyncio.gather(*[cli.send_json(data) for cli in clientList])
@@ -37,7 +38,8 @@ async def sendtoAll(data, clientList):
 def getTime():
     return round(time.time() * 1000)
     
-
+def getVidDir():
+    return sorted(os.listdir(config["files"]["video_dir"]), key=lambda v: (v.upper(), v[0].islower()))
 
 async def websocket_handler(request):
     global wsPclients; global wsCclients; global curVid; global vidStartTime; global curPos; global isPlaying; global dispConf; global curPref
@@ -62,10 +64,9 @@ async def websocket_handler(request):
                 isPlaying = False
                 curPos = getTime() - vidStartTime
             elif data[0] == "reqURL":
-                await ytdl(data[1])
-                await sendtoAll(["avalist", os.listdir(config["files"]["video_dir"])], wsCclients)
+                asyncio.create_task(ytdl(data[1]))
             elif data[0] == "getavalist":
-                await ws.send_json(["avalist",os.listdir(config["files"]["video_dir"])])
+                await ws.send_json(["avalist", getVidDir()])
             elif data[0] == "chngvid":
                 curPos = 0
                 curVid = data[1]
@@ -129,6 +130,20 @@ async def hanetc(req):
     return web.Response(text="404 Not found",content_type="text/plain", status=404)
 
 
+async def fileUpload(req):
+    async for field in (await req.multipart()):
+        if field.name == 'file':
+            filename = field.filename.replace('/', '_').replace('\\', '_')
+            size = 0
+            with open(os.path.join(config["files"]["video_dir"], filename), 'wb') as f:
+                while True:
+                    chunk = await field.read_chunk()
+                    if not chunk:
+                        break
+                    size += len(chunk)
+                    f.write(chunk)
+    asyncio.create_task(sendtoAll(["avalist", getVidDir()], wsCclients))
+    return web.Response(text=f"Uploaded {filename}")
 
 def main():
     if os.path.exists("config.ini"):
@@ -143,7 +158,8 @@ def main():
         }
         config["files"] = {
             "dl_format" : "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]",
-            "video_dir" : "./vid"
+            "video_dir" : "./vid",
+            "max_upload_size": 1024 ** 3 * 4
         }
         with open('config.ini', 'w') as configfile:
             config.write(configfile)
@@ -151,11 +167,12 @@ def main():
     if not os.path.isdir(config["files"]["video_dir"]):
         os.mkdir(config["files"]["video_dir"])
 
-    app = web.Application()
+    app = web.Application(client_max_size=int(config["files"]["max_upload_size"]))
     app.add_routes([
         web.get('/ws', websocket_handler),
         web.static("/vid", config["files"]["video_dir"]),
         web.static("/static", "./web"),
+        web.post('/upload', fileUpload),
         web.get('/{path:.*}', hanetc)
     ])
     

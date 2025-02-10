@@ -162,3 +162,9 @@ function sendURL() {
 function seek(val) {
     websoc.send(JSON.stringify(["seek", parseInt(val) * 1000]))
 }
+
+function sendFile() {
+    const formData = new FormData();
+    formData.append("file", document.getElementById("file-upload").files[0])
+    fetch("upload", {body: formData, method: "post"})
+}

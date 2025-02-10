@@ -3,7 +3,8 @@
     background-color: black;
 }
 
-ul#avalist li {
+ul#avalist li,
+.custom-file-upload {
     margin: 5px;
     padding: 4px;
     border-radius: 5px;
@@ -106,6 +107,16 @@ ul#avalist div:nth-child(n+2):hover {
 }
 .layTable span {
     cursor: default;
+}
+
+#file-upload {
+    display: none;
+}
+.custom-file-upload {
+    cursor: pointer;
+    width: max-content;
+    display: block;
+    margin: 10px;
 }
 
 @media only screen and (min-width: 900px) {
