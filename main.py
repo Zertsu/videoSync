@@ -131,19 +131,23 @@ async def hanetc(req):
 
 
 async def fileUpload(req):
-    async for field in (await req.multipart()):
-        if field.name == 'file':
-            filename = field.filename.replace('/', '_').replace('\\', '_')
-            size = 0
-            with open(os.path.join(config["files"]["video_dir"], filename), 'wb') as f:
-                while True:
-                    chunk = await field.read_chunk()
-                    if not chunk:
-                        break
-                    size += len(chunk)
-                    f.write(chunk)
+    if "X-Filename" in req.headers and "X-TempFile" in req.headers:
+        fname = req.headers["X-Filename"]
+        tname = req.headers["X-TempFile"].split('/')[-1]
+        if '/' in fname or '\\' in fname or '/' in tname or '\\' in tname:
+            return web.Response(text="Bad request", status=400)
+        os.rename(os.path.join(config["files"]["video_dir"], tname), 
+                  os.path.join(config["files"]["video_dir"], fname))
+    else:
+        fname = req.path.split('/')[-1].replace('\\', '_')
+        with open(os.path.join(config["files"]["video_dir"], fname), 'wb') as f:
+            while True:
+                chunk = await req.content.read(4096)
+                if not chunk:
+                    break
+                f.write(chunk)
     asyncio.create_task(sendtoAll(["avalist", getVidDir()], wsCclients))
-    return web.Response(text=f"Uploaded {filename}")
+    return web.Response(text=f"Uploaded {fname}")
 
 def main():
     if os.path.exists("config.ini"):
@@ -172,7 +176,7 @@ def main():
         web.get('/ws', websocket_handler),
         web.static("/vid", config["files"]["video_dir"]),
         web.static("/static", "./web"),
-        web.post('/upload', fileUpload),
+        web.post('/upload/{path:.*}', fileUpload),
         web.get('/{path:.*}', hanetc)
     ])
     

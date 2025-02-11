@@ -164,7 +164,6 @@ function seek(val) {
 }
 
 function sendFile() {
-    const formData = new FormData();
-    formData.append("file", document.getElementById("file-upload").files[0])
-    fetch("upload", {body: formData, method: "post"})
+    const f = document.getElementById("file-upload").files[0]
+    fetch(`upload/${f.name}`, {body: f, method: "post"})
 }

@@ -1,4 +1,5 @@
 FROM python:3-slim AS backend
+COPY --from=mwader/static-ffmpeg /ffmpeg /usr/local/bin/
 COPY requirements.txt /app/
 WORKDIR /app
 RUN pip install --no-cache-dir -r requirements.txt
