@@ -5,6 +5,7 @@ var syncoffset = 0;
 var ping = 0;
 var vStart = 0;
 var debug = false
+var curDownload = null;
 
 function getTime() {
     return new Date().getTime() + syncoffset
@@ -157,39 +158,42 @@ function setVideo(url, preF) {
     if (ve.src.startsWith("blob:")) {
         URL.revokeObjectURL(ve.src)
     }
+    if (curDownload) {
+        curDownload.abort()
+        curDownload = null
+    }
     if (preF) {
         ve.pause()
         var req = new XMLHttpRequest()
         req.open('GET', url, true)
         req.responseType = 'blob'
-        statEl = document.getElementById("prefStatus")
         prefBar = document.getElementById("prefBar")
         prefBar.style.display = "block"
         percent = 0
         function updateDownload() {
             if (percent == 100) {
-                statEl.innerText = ""
                 prefBar.style.display = "none"
                 prefBar.style.setProperty("--perc", "0%");
             } else {
                 prefBar.style.setProperty("--perc", `${percent}%`);
-                statEl.innerText = `Downloading ${percent.toFixed(0)}%`
                 window.requestAnimationFrame(updateDownload)
             }
         }
-        req.onload = function() {
-            if (this.status === 200) {
-                percent = 100
-                var videoBlob = this.response
-                var vid = URL.createObjectURL(videoBlob)
+        req.addEventListener("loadend", () => {
+            percent = 100
+            curDownload = null
+            if (req.status === 200) {
+                const videoBlob = req.response
+                const vid = URL.createObjectURL(videoBlob)
                 ve.src = vid
             }
-        }
-        req.onprogress = function(evn) {
-            percent = (evn.loaded/evn.total*100)
-        }
+        })
+        req.addEventListener("progress", (e) => {
+            percent = e.loaded / e.total * 100
+        })
         window.requestAnimationFrame(updateDownload)
         req.send()
+        curDownload = req
     } else {
         ve.setAttribute("src", url)
     }
