@@ -26,7 +26,9 @@ async def ytdl(url):
     process = await asyncio.create_subprocess_exec(
         'yt-dlp',
         '-f', config["files"]["dl_format"],
-        '-o', os.path.join(config["files"]["video_dir"],"%(title)s-%(id)s.%(ext)s"),
+        '-P', f'{config["files"]["video_dir"]}',
+        '-P', f'temp:{os.path.abspath(config["files"]["video_tmp_dir"])}',
+        '-o', "%(title)s-%(id)s.%(ext)s",
         url)
     await process.wait()
     await sendtoAll(["avalist", getVidDir()], wsCclients)
@@ -136,19 +138,22 @@ async def fileUpload(req):
         tname = req.headers["X-TempFile"].split('/')[-1]
         if '/' in fname or '\\' in fname or '/' in tname or '\\' in tname:
             return web.Response(text="Bad request", status=400)
-        os.link(os.path.join(config["files"]["video_dir"], tname), 
+        os.link(os.path.join(config["files"]["video_tmp_dir"], tname), 
                   os.path.join(config["files"]["video_dir"], fname))
     else:
         fname = req.path.split('/')[-1].replace('\\', '_')
         try:
-            with open(os.path.join(config["files"]["video_dir"], fname), 'wb') as f:
+            with open(os.path.join(config["files"]["video_tmp_dir"], fname), 'wb') as f:
                 while True:
-                    chunk = await req.content.read(4096)
+                    chunk = await req.content.read(131072) # 128K
                     if not chunk:
                         break
                     f.write(chunk)
+            os.rename(os.path.join(config["files"]["video_tmp_dir"], fname),
+                      os.path.join(config["files"]["video_dir"], fname))
         except ConnectionResetError:
-            os.remove(os.path.join(config["files"]["video_dir"], fname))
+            os.remove(os.path.join(config["files"]["video_tmp_dir"], fname))
+            return web.Response(status=400)
     asyncio.create_task(sendtoAll(["avalist", getVidDir()], wsCclients))
     return web.Response(text=f"Uploaded {fname}")
 
@@ -165,14 +170,19 @@ def main():
         }
         config["files"] = {
             "dl_format" : "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]",
-            "video_dir" : "./vid",
+            "video_dir" : "./vid/lib",
+            "video_tmp_dir": "./vid/tmp",
             "max_upload_size": 1024 ** 3 * 4
         }
         with open('config.ini', 'w') as configfile:
             config.write(configfile)
     
-    if not os.path.isdir(config["files"]["video_dir"]):
-        os.mkdir(config["files"]["video_dir"])
+    for d in [
+        config["files"]["video_dir"],
+        config["files"]["video_tmp_dir"]
+    ]:
+        if not os.path.isdir(d):
+            os.makedirs(d, exist_ok=True)
 
     app = web.Application(client_max_size=int(config["files"]["max_upload_size"]))
     app.add_routes([
