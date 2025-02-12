@@ -31,6 +31,34 @@ ul#avalist div:nth-child(n+2):hover {
 }
 
 
+.liloading {
+    position: relative;
+    overflow: hidden;
+}
+.liloading:before {
+    display: block;
+    content: '';
+    height: 100%;
+    width: var(--perc);
+    background-color: #a71b1b80;
+    position: absolute;
+    z-index: 1;
+}
+.liloading div {
+    z-index: 2;
+}
+#avalist li.liloading div:nth-child(2) {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+#avalist li.liloading div:nth-child(3) {
+    background: #930000;
+}
+#avalist li.liloading div:nth-child(3):hover {
+    background: #be0000;
+}
+
 #avalist {
     list-style-type: none;
     padding: 0;

@@ -165,5 +165,31 @@ function seek(val) {
 
 function sendFile() {
     const f = document.getElementById("file-upload").files[0]
-    fetch(`upload/${f.name}`, {body: f, method: "post"})
+    const req = new XMLHttpRequest();
+    const li = document.createElement("li")
+    li.style.setProperty("--perc", "0%");
+    li.classList.add("liloading")
+    const d1 = document.createElement("div")
+    d1.innerText = f.name
+    li.appendChild(d1)
+    li.appendChild(document.createElement("div"))
+    const d3 = document.createElement("div")
+    d3.innerText = "Cancel"
+    d3.addEventListener("click", () => {req.abort()})
+    li.appendChild(d3)
+    document.getElementById("avalist").appendChild(li)
+    req.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          li.style.setProperty("--perc", `${event.loaded / event.total * 100}%`);
+        }
+    })
+    req.addEventListener("loadend", () => {
+        if(req.readyState === 4 && req.status === 200) {
+            // pass
+        } else {
+            li.remove()
+        }
+    })
+    req.open("POST", `upload/${encodeURIComponent(f.name)}`, true)
+    req.send(f)
 }

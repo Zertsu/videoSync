@@ -136,16 +136,19 @@ async def fileUpload(req):
         tname = req.headers["X-TempFile"].split('/')[-1]
         if '/' in fname or '\\' in fname or '/' in tname or '\\' in tname:
             return web.Response(text="Bad request", status=400)
-        os.rename(os.path.join(config["files"]["video_dir"], tname), 
+        os.link(os.path.join(config["files"]["video_dir"], tname), 
                   os.path.join(config["files"]["video_dir"], fname))
     else:
         fname = req.path.split('/')[-1].replace('\\', '_')
-        with open(os.path.join(config["files"]["video_dir"], fname), 'wb') as f:
-            while True:
-                chunk = await req.content.read(4096)
-                if not chunk:
-                    break
-                f.write(chunk)
+        try:
+            with open(os.path.join(config["files"]["video_dir"], fname), 'wb') as f:
+                while True:
+                    chunk = await req.content.read(4096)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+        except ConnectionResetError:
+            os.remove(os.path.join(config["files"]["video_dir"], fname))
     asyncio.create_task(sendtoAll(["avalist", getVidDir()], wsCclients))
     return web.Response(text=f"Uploaded {fname}")
 
