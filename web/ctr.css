@@ -155,6 +155,7 @@ ul#avalist div:nth-child(n+2):hover {
     left: 0;
     height: 100vh;
     width: 100vw;
+    z-index: 999;
     overflow: hidden;
     background-color: #000000c7;
     justify-content: center;

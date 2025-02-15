@@ -165,7 +165,11 @@ function avalistHan(vals) {
         li.appendChild(d3)
         ul.appendChild(li)
     }
-    document.getElementById("avalist").replaceWith(ul)
+    const avalistEl = document.getElementById("avalist")
+    Array.from(avalistEl.getElementsByClassName("liloading")).forEach((el) => {
+        ul.appendChild(el)
+    })
+    avalistEl.replaceWith(ul)
 }
 
 
@@ -182,10 +186,13 @@ function seek(val) {
     websoc.send(JSON.stringify(["seek", parseInt(val) * 1000]))
 }
 
-function sendFile(f) {
-    if (!f) {
-        f = document.getElementById("file-upload").files[0]
+function fileChangeHan() {
+    for (const f of document.getElementById("file-upload").files) {
+        sendFile(f)
     }
+}
+
+function sendFile(f) {
     const req = new XMLHttpRequest();
     const li = document.createElement("li")
     li.style.setProperty("--perc", "0%");
@@ -205,11 +212,7 @@ function sendFile(f) {
         }
     })
     req.addEventListener("loadend", () => {
-        if(req.readyState === 4 && req.status === 200) {
-            // pass
-        } else {
-            li.remove()
-        }
+        li.remove()
     })
     req.open("POST", `upload/${encodeURIComponent(f.name)}`, true)
     req.send(f)
