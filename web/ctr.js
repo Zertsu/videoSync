@@ -38,6 +38,25 @@ window.onload = function () {
         }
         layCont.appendChild(table)
     }
+
+    const dragOverEl = document.getElementsByClassName("fileDrag")[0]
+    document.addEventListener("dragover", (e) => {
+        e.preventDefault()
+        dragOverEl.style.display = 'flex'
+    });
+    document.addEventListener("drop", (e) => {
+        e.preventDefault()
+        dragOverEl.style.display = 'none'
+        for (const f of e.dataTransfer.files) {
+            sendFile(f)
+        }
+    });
+    document.addEventListener("dragleave", (e) => {
+        e.preventDefault()
+        if (e.target == dragOverEl) {
+            dragOverEl.style.display = 'none'
+        }
+    })
 }
 
 function updateLay(d) {
@@ -163,8 +182,10 @@ function seek(val) {
     websoc.send(JSON.stringify(["seek", parseInt(val) * 1000]))
 }
 
-function sendFile() {
-    const f = document.getElementById("file-upload").files[0]
+function sendFile(f) {
+    if (!f) {
+        f = document.getElementById("file-upload").files[0]
+    }
     const req = new XMLHttpRequest();
     const li = document.createElement("li")
     li.style.setProperty("--perc", "0%");
