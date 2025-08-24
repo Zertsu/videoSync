@@ -257,3 +257,7 @@ function togIndex(show = null) {
         indexEl.style.display = show ? "block" : "none"
     }
 }
+function timeNetSync() {
+    websoc.send(JSON.stringify(["timereq"]))
+    ping = getAbsTime()
+}
