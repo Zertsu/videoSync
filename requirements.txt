@@ -1,2 +1,2 @@
-aiohttp==3.13.3
+aiohttp==3.13.5
 yt-dlp>=2025.12.8
